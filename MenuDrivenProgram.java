@@ -2,6 +2,9 @@ import java.util.Scanner;
 
 public class MenuDrivenProgram {
 
+    private static final String VALID_USERNAME = "Priyantan";
+    private static final String VALID_PASSWORD = "250301120275";
+
     // ==============
     // SEARCH METHODS
     // ==============
@@ -313,6 +316,100 @@ public class MenuDrivenProgram {
         }
     }
 
+    // =====
+    // DEQUE
+    // =====
+
+    static class Deque {
+        private final int[] elements;
+        private int front = -1;
+        private int rear = -1;
+        private int count = 0;
+
+        Deque(int capacity) {
+            elements = new int[capacity];
+        }
+
+        boolean insertFront(int value) {
+            if (count == elements.length) {
+                System.out.println("Deque Overflow!");
+                return false;
+            }
+
+            if (count == 0) {
+                front = rear = 0;
+            } else {
+                front = (front - 1 + elements.length) % elements.length;
+            }
+
+            elements[front] = value;
+            count++;
+            System.out.println(value + " inserted at front");
+            return true;
+        }
+
+        boolean insertRear(int value) {
+            if (count == elements.length) {
+                System.out.println("Deque Overflow!");
+                return false;
+            }
+
+            if (count == 0) {
+                front = rear = 0;
+            } else {
+                rear = (rear + 1) % elements.length;
+            }
+
+            elements[rear] = value;
+            count++;
+            System.out.println(value + " inserted at rear");
+            return true;
+        }
+
+        void deleteFront() {
+            if (count == 0) {
+                System.out.println("Deque Underflow!");
+                return;
+            }
+
+            System.out.println(elements[front] + " deleted from front");
+            front = (front + 1) % elements.length;
+            count--;
+
+            if (count == 0) {
+                front = rear = -1;
+            }
+        }
+
+        void deleteRear() {
+            if (count == 0) {
+                System.out.println("Deque Underflow!");
+                return;
+            }
+
+            System.out.println(elements[rear] + " deleted from rear");
+            rear = (rear - 1 + elements.length) % elements.length;
+            count--;
+
+            if (count == 0) {
+                front = rear = -1;
+            }
+        }
+
+        void display() {
+            if (count == 0) {
+                System.out.println("Deque is empty.");
+                return;
+            }
+
+            System.out.print("Deque: ");
+            for (int i = 0; i < count; i++) {
+                System.out.print(elements[(front + i) % elements.length] + " ");
+            }
+            System.out.println();
+        }
+    }
+
     // ================
     // MAIN SEARCH MENU
     // ================
@@ -528,7 +625,8 @@ public class MenuDrivenProgram {
             System.out.println("\n====== QUEUE OPERATIONS ======");
             System.out.println("1. Implement Queue using Array");
             System.out.println("2. Reverse Queue using Stack");
-            System.out.println("3. Back to Main Menu");
+            System.out.println("3. Deque Operations");
+            System.out.println("4. Back to Main Menu");
             System.out.print("Enter your choice: ");
 
             choice = sc.nextInt();
@@ -606,13 +704,77 @@ public class MenuDrivenProgram {
                     break;
 
                 case 3:
+                    dequeOperationsMenu(sc);
+                    break;
+
+                case 4:
                     break;
 
                 default:
                     System.out.println("Invalid Choice!");
             }
 
-        } while (choice != 3);
+        } while (choice != 4);
+    }
+
+    // ======================
+    // DEQUE OPERATIONS MENU
+    // ======================
+
+    static void dequeOperationsMenu(Scanner sc) {
+        System.out.print("Enter deque size: ");
+        int size = sc.nextInt();
+
+        if (size <= 0) {
+            System.out.println("Deque size must be greater than zero.");
+            return;
+        }
+
+        Deque deque = new Deque(size);
+        int choice;
+
+        do {
+            System.out.println("\n===== DEQUE =====");
+            System.out.println("1. Insert Front");
+            System.out.println("2. Insert Rear");
+            System.out.println("3. Delete Front");
+            System.out.println("4. Delete Rear");
+            System.out.println("5. Display");
+            System.out.println("6. Back");
+            System.out.print("Enter your choice: ");
+
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter value: ");
+                    deque.insertFront(sc.nextInt());
+                    break;
+
+                case 2:
+                    System.out.print("Enter value: ");
+                    deque.insertRear(sc.nextInt());
+                    break;
+
+                case 3:
+                    deque.deleteFront();
+                    break;
+
+                case 4:
+                    deque.deleteRear();
+                    break;
+
+                case 5:
+                    deque.display();
+                    break;
+
+                case 6:
+                    break;
+
+                default:
+                    System.out.println("Invalid Choice!");
+            }
+        } while (choice != 6);
     }
 
     // ============
@@ -628,6 +790,12 @@ public class MenuDrivenProgram {
 
         System.out.print("Enter Password (Regd No.): ");
         String password = sc.nextLine();
+
+        if (!VALID_USERNAME.equals(username) || !VALID_PASSWORD.equals(password)) {
+            System.out.println("Invalid credentials!");
+            sc.close();
+            return;
+        }
 
         int choice;
 
