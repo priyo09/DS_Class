@@ -230,9 +230,15 @@ public class MenuDrivenProgram {
         int front;
         int rear;
         int size;
+        boolean singleInsertionMode;
 
         Queue(int size) {
+            this(size, false);
+        }
+
+        Queue(int size, boolean singleInsertionMode) {
             this.size = size;
+            this.singleInsertionMode = singleInsertionMode;
             queue = new int[size];
 
             front = -1;
@@ -242,7 +248,7 @@ public class MenuDrivenProgram {
         // Insert
         void enqueue(int value) {
 
-            if (rear == size - 1) {
+            if ((singleInsertionMode && front != -1) || rear == size - 1) {
                 System.out.println("Queue Overflow!");
                 return;
             }
@@ -405,6 +411,104 @@ public class MenuDrivenProgram {
             System.out.print("Deque: ");
             for (int i = 0; i < count; i++) {
                 System.out.print(elements[(front + i) % elements.length] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    static class CircularQueue {
+        private final int[] elements;
+        private int front = 0;
+        private int rear = -1;
+        private int count = 0;
+
+        CircularQueue(int capacity) {
+            elements = new int[capacity];
+        }
+
+        void enqueue(int value) {
+            if (count == elements.length) {
+                System.out.println("Circular Queue Overflow!");
+                return;
+            }
+
+            rear = (rear + 1) % elements.length;
+            elements[rear] = value;
+            count++;
+            System.out.println(value + " inserted");
+        }
+
+        void dequeue() {
+            if (count == 0) {
+                System.out.println("Circular Queue Underflow!");
+                return;
+            }
+
+            System.out.println(elements[front] + " deleted");
+            front = (front + 1) % elements.length;
+            count--;
+        }
+
+        void display() {
+            if (count == 0) {
+                System.out.println("Circular Queue is empty.");
+                return;
+            }
+
+            System.out.print("Circular Queue: ");
+            for (int i = 0; i < count; i++) {
+                System.out.print(elements[(front + i) % elements.length] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    static class PriorityQueue {
+        private final int[] elements;
+        private int count = 0;
+
+        PriorityQueue(int capacity) {
+            elements = new int[capacity];
+        }
+
+        void enqueue(int value) {
+            if (count == elements.length) {
+                System.out.println("Priority Queue Overflow!");
+                return;
+            }
+
+            int i = count - 1;
+            while (i >= 0 && elements[i] > value) {
+                elements[i + 1] = elements[i];
+                i--;
+            }
+            elements[i + 1] = value;
+            count++;
+            System.out.println(value + " inserted");
+        }
+
+        void dequeue() {
+            if (count == 0) {
+                System.out.println("Priority Queue Underflow!");
+                return;
+            }
+
+            System.out.println(elements[0] + " deleted (highest priority)");
+            for (int i = 1; i < count; i++) {
+                elements[i - 1] = elements[i];
+            }
+            count--;
+        }
+
+        void display() {
+            if (count == 0) {
+                System.out.println("Priority Queue is empty.");
+                return;
+            }
+
+            System.out.print("Priority Queue (lowest value = highest priority): ");
+            for (int i = 0; i < count; i++) {
+                System.out.print(elements[i] + " ");
             }
             System.out.println();
         }
@@ -735,46 +839,254 @@ public class MenuDrivenProgram {
 
         do {
             System.out.println("\n===== DEQUE =====");
-            System.out.println("1. Insert Front");
-            System.out.println("2. Insert Rear");
-            System.out.println("3. Delete Front");
-            System.out.println("4. Delete Rear");
-            System.out.println("5. Display");
-            System.out.println("6. Back");
+            System.out.println("1. Insert");
+            System.out.println("2. Delete");
+            System.out.println("3. Display");
+            System.out.println("4. Back");
             System.out.print("Enter your choice: ");
 
             choice = sc.nextInt();
 
             switch (choice) {
                 case 1:
-                    System.out.print("Enter value: ");
-                    deque.insertFront(sc.nextInt());
+                    System.out.println("1. Insert Front");
+                    System.out.println("2. Insert Rear");
+                    System.out.print("Enter your choice: ");
+                    int insertChoice = sc.nextInt();
+
+                    if (insertChoice == 1 || insertChoice == 2) {
+                        System.out.print("Enter value: ");
+                        int value = sc.nextInt();
+                        if (insertChoice == 1) {
+                            deque.insertFront(value);
+                        } else {
+                            deque.insertRear(value);
+                        }
+                    } else {
+                        System.out.println("Invalid Choice!");
+                    }
                     break;
 
                 case 2:
-                    System.out.print("Enter value: ");
-                    deque.insertRear(sc.nextInt());
+                    System.out.println("1. Delete Front");
+                    System.out.println("2. Delete Rear");
+                    System.out.print("Enter your choice: ");
+                    int deleteChoice = sc.nextInt();
+
+                    if (deleteChoice == 1) {
+                        deque.deleteFront();
+                    } else if (deleteChoice == 2) {
+                        deque.deleteRear();
+                    } else {
+                        System.out.println("Invalid Choice!");
+                    }
                     break;
 
                 case 3:
-                    deque.deleteFront();
-                    break;
-
-                case 4:
-                    deque.deleteRear();
-                    break;
-
-                case 5:
                     deque.display();
                     break;
 
-                case 6:
+                case 4:
                     break;
 
                 default:
                     System.out.println("Invalid Choice!");
             }
-        } while (choice != 6);
+        } while (choice != 4);
+    }
+
+    static void linearSearchOperation(Scanner sc) {
+        System.out.print("Enter number of elements: ");
+        int n = sc.nextInt();
+        int[] arr = new int[n];
+
+        System.out.println("Enter " + n + " elements:");
+        for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+
+        System.out.print("Enter element to search: ");
+        int result = linearSearch(arr, sc.nextInt());
+        System.out.println(result == -1 ? "Element not found."
+                : "Element found at position " + (result + 1));
+    }
+
+    static void binarySearchOperation(Scanner sc) {
+        System.out.print("Enter number of elements: ");
+        int n = sc.nextInt();
+        int[] arr = new int[n];
+
+        System.out.println("Enter elements in sorted ascending order:");
+        for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+
+        System.out.print("Enter element to search: ");
+        int result = binarySearch(arr, sc.nextInt());
+        System.out.println(result == -1 ? "Element not found."
+                : "Element found at position " + (result + 1));
+    }
+
+    static Stack getMainStack(Scanner sc, Stack stack) {
+        if (stack != null) {
+            return stack;
+        }
+
+        System.out.print("Enter stack size: ");
+        int size = sc.nextInt();
+        if (size <= 0) {
+            System.out.println("Stack size must be greater than zero.");
+            return null;
+        }
+        return new Stack(size);
+    }
+
+    static Stack pushStackOperation(Scanner sc, Stack stack) {
+        stack = getMainStack(sc, stack);
+        if (stack != null) {
+            System.out.print("Enter element: ");
+            stack.push(sc.nextInt());
+        }
+        return stack;
+    }
+
+    static Stack popStackOperation(Scanner sc, Stack stack) {
+        if (stack == null) {
+            System.out.println("Stack is not initialized. Select 2.1.1 first.");
+            return null;
+        }
+
+        int popped = stack.pop();
+        if (popped != -1) {
+            System.out.println("Element popped: " + popped);
+        }
+        return stack;
+    }
+
+    static void displayStackOperation(Stack stack) {
+        if (stack == null) {
+            System.out.println("Stack is not initialized. Select 2.1.1 first.");
+        } else {
+            stack.display();
+        }
+    }
+
+    static void linearQueueMenu(Scanner sc) {
+        System.out.print("Enter queue size: ");
+        int size = sc.nextInt();
+        if (size <= 0) {
+            System.out.println("Queue size must be greater than zero.");
+            return;
+        }
+
+        Queue queue = new Queue(size, true);
+        int choice;
+        do {
+            System.out.println("\n===== LINEAR QUEUE =====");
+            System.out.println("1. Insert");
+            System.out.println("2. Delete");
+            System.out.println("3. Display");
+            System.out.println("4. Back");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter value: ");
+                    queue.enqueue(sc.nextInt());
+                    break;
+                case 2:
+                    queue.dequeue();
+                    break;
+                case 3:
+                    queue.display();
+                    break;
+                case 4:
+                    break;
+                default:
+                    System.out.println("Invalid Choice!");
+            }
+        } while (choice != 4);
+    }
+
+    static void circularQueueMenu(Scanner sc) {
+        System.out.print("Enter circular queue size: ");
+        int size = sc.nextInt();
+        if (size <= 0) {
+            System.out.println("Queue size must be greater than zero.");
+            return;
+        }
+
+        CircularQueue queue = new CircularQueue(size);
+        queueMenu(sc, queue);
+    }
+
+    static void priorityQueueMenu(Scanner sc) {
+        System.out.print("Enter priority queue size: ");
+        int size = sc.nextInt();
+        if (size <= 0) {
+            System.out.println("Queue size must be greater than zero.");
+            return;
+        }
+
+        PriorityQueue queue = new PriorityQueue(size);
+        int choice;
+        do {
+            System.out.println("\n===== PRIORITY QUEUE =====");
+            System.out.println("1. Insert");
+            System.out.println("2. Delete Highest Priority");
+            System.out.println("3. Display");
+            System.out.println("4. Back");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter value (smaller value = higher priority): ");
+                    queue.enqueue(sc.nextInt());
+                    break;
+                case 2:
+                    queue.dequeue();
+                    break;
+                case 3:
+                    queue.display();
+                    break;
+                case 4:
+                    break;
+                default:
+                    System.out.println("Invalid Choice!");
+            }
+        } while (choice != 4);
+    }
+
+    static void queueMenu(Scanner sc, CircularQueue queue) {
+        int choice;
+        do {
+            System.out.println("\n===== CIRCULAR QUEUE =====");
+            System.out.println("1. Insert");
+            System.out.println("2. Delete");
+            System.out.println("3. Display");
+            System.out.println("4. Back");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter value: ");
+                    queue.enqueue(sc.nextInt());
+                    break;
+                case 2:
+                    queue.dequeue();
+                    break;
+                case 3:
+                    queue.display();
+                    break;
+                case 4:
+                    break;
+                default:
+                    System.out.println("Invalid Choice!");
+            }
+        } while (choice != 4);
     }
 
     // ============
@@ -785,46 +1097,125 @@ public class MenuDrivenProgram {
 
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("Enter Username: ");
-        String username = sc.nextLine();
+        boolean authenticated = false;
 
-        System.out.print("Enter Password (Regd No.): ");
-        String password = sc.nextLine();
+        while (!authenticated) {
+            System.out.print("Enter Username: ");
+            String username = sc.nextLine();
 
-        if (!VALID_USERNAME.equals(username) || !VALID_PASSWORD.equals(password)) {
-            System.out.println("Invalid credentials!");
-            sc.close();
-            return;
+            System.out.print("Enter Password (Regd No.): ");
+            String password = sc.nextLine();
+
+            if (VALID_USERNAME.equals(username) && VALID_PASSWORD.equals(password)) {
+                authenticated = true;
+            } else {
+                System.out.println("Invalid credentials! Please try again.\n");
+            }
         }
 
-        int choice;
+        System.out.println("Login successful.");
+
+        String choice;
+        Stack mainStack = null;
+        String mainPostfix = "";
 
         do {
 
             System.out.println("\n========== MAIN MENU ==========");
             System.out.println("1. Search");
+            System.out.println("   1.1 Linear Search");
+            System.out.println("   1.2 Binary Search");
             System.out.println("2. Stack Operations");
+            System.out.println("   2.1 Stack using Array");
+            System.out.println("       2.1.1 Push");
+            System.out.println("       2.1.2 Pop");
+            System.out.println("       2.1.3 Display");
+            System.out.println("   2.2 Infix to Postfix Conversion");
+            System.out.println("   2.3 Postfix Expression Evaluation");
             System.out.println("3. Queue Operations");
+            System.out.println("   3.1 Linear Queue");
+            System.out.println("   3.2 Circular Queue");
+            System.out.println("   3.3 Priority Queue");
+            System.out.println("   3.4 Deque");
             System.out.println("4. Exit");
-            System.out.print("Enter your choice: ");
+            System.out.print("Enter your choice (for example, 1.1): ");
 
-            choice = sc.nextInt();
+            do {
+                choice = sc.nextLine().trim();
+            } while (choice.isEmpty());
 
             switch (choice) {
 
-                case 1:
-                    searchMenu(sc);
+                case "1":
+                    // A plain 1 is accepted as the first Search operation.
+                    linearSearchOperation(sc);
                     break;
 
-                case 2:
+                case "1.1":
+                    linearSearchOperation(sc);
+                    break;
+
+                case "1.2":
+                    binarySearchOperation(sc);
+                    break;
+
+                case "2":
                     stackOperationsMenu(sc);
                     break;
 
-                case 3:
-                    queueOperationsMenu(sc);
+                case "2.1":
+                    stackOperationsMenu(sc);
                     break;
 
-                case 4:
+                case "2.1.1":
+                    mainStack = pushStackOperation(sc, mainStack);
+                    break;
+
+                case "2.1.2":
+                    mainStack = popStackOperation(sc, mainStack);
+                    break;
+
+                case "2.1.3":
+                    displayStackOperation(mainStack);
+                    break;
+
+                case "2.2":
+                    System.out.print("Enter infix expression: ");
+                    mainPostfix = infixToPostfix(sc.nextLine());
+                    System.out.println("Postfix expression: " + mainPostfix);
+                    break;
+
+                case "2.3":
+                    if (mainPostfix.isEmpty()) {
+                        System.out.println("First convert an infix expression to postfix using 2.2.");
+                    } else {
+                        System.out.println("Postfix expression: " + mainPostfix);
+                        System.out.println("Result: " + evaluatePostfix(mainPostfix));
+                    }
+                    break;
+
+                case "3.1":
+                    linearQueueMenu(sc);
+                    break;
+
+                case "3.2":
+                    circularQueueMenu(sc);
+                    break;
+
+                case "3.3":
+                    priorityQueueMenu(sc);
+                    break;
+
+                case "3.4":
+                    dequeOperationsMenu(sc);
+                    break;
+
+                case "3":
+                    // A plain 3 is accepted as the first Queue operation.
+                    linearQueueMenu(sc);
+                    break;
+
+                case "4":
                     System.out.println("Program ended.");
                     break;
 
@@ -832,7 +1223,7 @@ public class MenuDrivenProgram {
                     System.out.println("Invalid Choice!");
             }
 
-        } while (choice != 4);
+        } while (!choice.equals("4"));
 
         sc.close();
     }
