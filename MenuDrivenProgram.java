@@ -1089,6 +1089,271 @@ public class MenuDrivenProgram {
         } while (choice != 4);
     }
 
+    // ==========================
+    // DOUBLY LINKED LIST
+    // ==========================
+
+    static class SinglyLinkedList {
+        private static class Node {
+            int data;
+            Node next;
+            Node(int data) { this.data = data; }
+        }
+
+        private static class List {
+            Node head;
+
+            void create(Scanner sc) {
+                System.out.print("Enter number of nodes: ");
+                int n = sc.nextInt();
+                if (n < 0) { System.out.println("Number of nodes cannot be negative."); return; }
+                head = null;
+                Node tail = null;
+                for (int i = 1; i <= n; i++) {
+                    System.out.print("Enter data for node " + i + ": ");
+                    Node node = new Node(sc.nextInt());
+                    if (head == null) head = node;
+                    else tail.next = node;
+                    tail = node;
+                }
+                System.out.println("List created successfully.");
+            }
+
+            void display() {
+                if (head == null) { System.out.println("List is empty."); return; }
+                for (Node node = head; node != null; node = node.next) System.out.print(node.data + " ---> ");
+                System.out.println("NULL");
+            }
+
+            void append(List other) {
+                if (other.head == null) return;
+                if (head == null) { head = other.head; return; }
+                Node tail = head;
+                while (tail.next != null) tail = tail.next;
+                tail.next = other.head;
+            }
+        }
+
+        private final List first = new List();
+        private final List second = new List();
+        private boolean combined;
+
+        void menu(Scanner sc) {
+            int choice;
+            do {
+                System.out.println("\n===== SINGLY LINKED LIST =====");
+                System.out.println("1. Create first list\n2. Display first list\n3. Create second list\n4. Display second list\n5. Combine lists\n0. Back");
+                System.out.print("Enter choice: ");
+                choice = sc.nextInt();
+                switch (choice) {
+                    case 1: first.create(sc); combined = false; break;
+                    case 2: first.display(); break;
+                    case 3: second.create(sc); combined = false; break;
+                    case 4: second.display(); break;
+                    case 5:
+                        if (combined) System.out.println("The lists have already been combined.");
+                        else {
+                            first.append(second);
+                            combined = true;
+                            System.out.println("Combined list:");
+                            first.display();
+                        }
+                        break;
+                    case 0: break;
+                    default: System.out.println("Invalid choice.");
+                }
+            } while (choice != 0);
+        }
+    }
+
+    static class DoublyLinkedList {
+        private static class Node {
+            int data;
+            Node prev;
+            Node next;
+
+            Node(int data) {
+                this.data = data;
+            }
+        }
+
+        private Node head;
+        private Node tail;
+        private boolean circular;
+
+        void create(Scanner sc) {
+            System.out.print("Enter the number of nodes to create: ");
+            int n = sc.nextInt();
+            if (n < 0) {
+                System.out.println("Number of nodes cannot be negative.");
+                return;
+            }
+            head = tail = null;
+            circular = false;
+            for (int i = 1; i <= n; i++) {
+                System.out.print("Enter data for node " + i + ": ");
+                insertEnd(sc.nextInt());
+            }
+            System.out.println("Doubly linked list created.");
+        }
+
+        private void insertBeg(int value) {
+            Node node = new Node(value);
+            if (head == null) head = tail = node;
+            else {
+                node.next = head;
+                head.prev = node;
+                head = node;
+            }
+            relinkCircular();
+        }
+
+        private void insertEnd(int value) {
+            Node node = new Node(value);
+            if (tail == null) head = tail = node;
+            else {
+                tail.next = node;
+                node.prev = tail;
+                tail = node;
+            }
+            relinkCircular();
+        }
+
+        private void insertAt(Scanner sc) {
+            System.out.print("Enter position (1-based): ");
+            int pos = sc.nextInt();
+            if (pos <= 1 || head == null) {
+                System.out.print("Enter value: ");
+                insertBeg(sc.nextInt());
+                return;
+            }
+            Node current = head;
+            for (int i = 1; i < pos - 1 && current.next != null; i++) current = current.next;
+            System.out.print("Enter value: ");
+            Node node = new Node(sc.nextInt());
+            node.prev = current;
+            node.next = current.next;
+            if (current.next == null) tail = node;
+            else current.next.prev = node;
+            current.next = node;
+            relinkCircular();
+        }
+
+        void delete(Scanner sc) {
+            if (head == null) {
+                System.out.println("List is empty.");
+                return;
+            }
+            System.out.println("1. Delete beginning  2. Delete end  3. Delete position");
+            System.out.print("Enter choice: ");
+            int choice = sc.nextInt();
+            Node node;
+            if (choice == 1) node = head;
+            else if (choice == 2) node = tail;
+            else if (choice == 3) {
+                System.out.print("Enter position (1-based): ");
+                int pos = sc.nextInt();
+                if (pos < 1) { System.out.println("Invalid position."); return; }
+                node = head;
+                for (int i = 1; i < pos && node != null; i++) node = node.next;
+                if (node == null) { System.out.println("Position out of bounds."); return; }
+            } else { System.out.println("Invalid choice."); return; }
+            if (node.prev == null) head = node.next;
+            else node.prev.next = node.next;
+            if (node.next == null) tail = node.prev;
+            else node.next.prev = node.prev;
+            if (head == null) circular = false;
+            relinkCircular();
+            System.out.println("Deleted node with value: " + node.data);
+        }
+
+        void display() {
+            if (head == null) { System.out.println("List is empty."); return; }
+            Node current = head;
+            System.out.print("null <-> ");
+            while (current != null) {
+                System.out.print(current.data + " <-> ");
+                if (current == tail) break;
+                current = current.next;
+            }
+            System.out.println(circular ? "(back to head)" : "null");
+        }
+
+        void makeCircular() {
+            if (head == null) { System.out.println("List is empty."); return; }
+            circular = true;
+            relinkCircular();
+            System.out.println("List converted to a doubly circular list.");
+        }
+
+        void count() {
+            int count = 0;
+            for (Node current = head; current != null; current = current.next) {
+                count++;
+                if (current == tail) break;
+            }
+            System.out.println("Number of nodes: " + count);
+        }
+
+        void displayAlternate() {
+            if (head == null) { System.out.println("List is empty."); return; }
+            System.out.print("Alternate nodes: ");
+            for (Node current = head; current != null; current = current.next == null || current == tail ? null : current.next.next)
+                System.out.print(current.data + " ");
+            System.out.println();
+        }
+
+        private void relinkCircular() {
+            if (head != null) {
+                head.prev = circular ? tail : null;
+                tail.next = circular ? head : null;
+            }
+        }
+
+        void menu(Scanner sc) {
+            int choice;
+            do {
+                System.out.println("\n===== DOUBLY LINKED LIST =====");
+                System.out.println("1. Create list\n2. Display\n3. Insert\n4. Delete\n5. Make circular\n6. Count nodes\n7. Display alternate nodes\n0. Back");
+                System.out.print("Enter choice: ");
+                choice = sc.nextInt();
+                switch (choice) {
+                    case 1: create(sc); break;
+                    case 2: display(); break;
+                    case 3:
+                        System.out.println("1. Beginning  2. End  3. Position");
+                        System.out.print("Enter choice: ");
+                        int insertChoice = sc.nextInt();
+                        System.out.print("Enter value: ");
+                        int value = sc.nextInt();
+                        if (insertChoice == 1) insertBeg(value);
+                        else if (insertChoice == 2) insertEnd(value);
+                        else if (insertChoice == 3) {
+                            // Reuse positional insertion while keeping input order consistent.
+                            System.out.print("Enter position (1-based): ");
+                            int pos = sc.nextInt();
+                            if (pos <= 1 || head == null) insertBeg(value);
+                            else {
+                                Node current = head;
+                                for (int i = 1; i < pos - 1 && current.next != null; i++) current = current.next;
+                                Node node = new Node(value);
+                                node.prev = current; node.next = current.next;
+                                if (current.next == null) tail = node; else current.next.prev = node;
+                                current.next = node; relinkCircular();
+                            }
+                        } else System.out.println("Invalid choice.");
+                        break;
+                    case 4: delete(sc); break;
+                    case 5: makeCircular(); break;
+                    case 6: count(); break;
+                    case 7: displayAlternate(); break;
+                    case 0: break;
+                    default: System.out.println("Invalid choice.");
+                }
+            } while (choice != 0);
+        }
+    }
+
     // ============
     // MAIN METHOD
     // ============
@@ -1118,6 +1383,8 @@ public class MenuDrivenProgram {
         String choice;
         Stack mainStack = null;
         String mainPostfix = "";
+        DoublyLinkedList dll = new DoublyLinkedList();
+        SinglyLinkedList sll = new SinglyLinkedList();
 
         do {
 
@@ -1137,7 +1404,10 @@ public class MenuDrivenProgram {
             System.out.println("   3.2 Circular Queue");
             System.out.println("   3.3 Priority Queue");
             System.out.println("   3.4 Deque");
-            System.out.println("4. Exit");
+            System.out.println("4. Linked List");
+            System.out.println("   4.1 Singly Linked List");
+            System.out.println("   4.2 Doubly Linked List");
+            System.out.println("5. Exit");
             System.out.print("Enter your choice (for example, 1.1): ");
 
             do {
@@ -1216,6 +1486,15 @@ public class MenuDrivenProgram {
                     break;
 
                 case "4":
+                case "4.1":
+                    sll.menu(sc);
+                    break;
+
+                case "4.2":
+                    dll.menu(sc);
+                    break;
+
+                case "5":
                     System.out.println("Program ended.");
                     break;
 
@@ -1223,7 +1502,7 @@ public class MenuDrivenProgram {
                     System.out.println("Invalid Choice!");
             }
 
-        } while (!choice.equals("4"));
+        } while (!choice.equals("5"));
 
         sc.close();
     }
