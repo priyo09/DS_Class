@@ -1354,6 +1354,243 @@ public class MenuDrivenProgram {
         }
     }
 
+    // =====================
+    // ADDITIONAL PROGRAMS
+    // =====================
+
+    static void arrayInputDisplay(Scanner sc) {
+        System.out.print("Enter number of elements: ");
+        int n = sc.nextInt();
+        if (n < 0) {
+            System.out.println("Number of elements cannot be negative.");
+            return;
+        }
+        int[] values = new int[n];
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter element " + (i + 1) + ": ");
+            values[i] = sc.nextInt();
+        }
+        System.out.println("Array elements:");
+        for (int value : values) System.out.println(value);
+    }
+
+    static class MergeNode {
+        int data;
+        MergeNode next;
+        MergeNode(int data) { this.data = data; }
+    }
+
+    static MergeNode appendMergeNode(MergeNode head, int value) {
+        MergeNode node = new MergeNode(value);
+        if (head == null) return node;
+        MergeNode current = head;
+        while (current.next != null) current = current.next;
+        current.next = node;
+        return head;
+    }
+
+    static MergeNode mergeSortedNodes(MergeNode first, MergeNode second) {
+        MergeNode dummy = new MergeNode(0), tail = dummy;
+        while (first != null && second != null) {
+            if (first.data <= second.data) { tail.next = first; first = first.next; }
+            else { tail.next = second; second = second.next; }
+            tail = tail.next;
+        }
+        tail.next = first != null ? first : second;
+        return dummy.next;
+    }
+
+    static void displayMergeList(MergeNode head) {
+        while (head != null) { System.out.print(head.data + " -> "); head = head.next; }
+        System.out.println("NULL");
+    }
+
+    static void mergeSortedLists(Scanner sc) {
+        System.out.print("Number of elements in first sorted list: ");
+        int n1 = sc.nextInt();
+        if (n1 < 0) { System.out.println("Size cannot be negative."); return; }
+        MergeNode first = null;
+        System.out.println("Enter first list in ascending order:");
+        for (int i = 0; i < n1; i++) first = appendMergeNode(first, sc.nextInt());
+
+        System.out.print("Number of elements in second sorted list: ");
+        int n2 = sc.nextInt();
+        if (n2 < 0) { System.out.println("Size cannot be negative."); return; }
+        MergeNode second = null;
+        System.out.println("Enter second list in ascending order:");
+        for (int i = 0; i < n2; i++) second = appendMergeNode(second, sc.nextInt());
+
+        System.out.println("First sorted list:"); displayMergeList(first);
+        System.out.println("Second sorted list:"); displayMergeList(second);
+        System.out.println("Merged sorted list:"); displayMergeList(mergeSortedNodes(first, second));
+    }
+
+    static class MenuBSTNode {
+        int value;
+        MenuBSTNode left, right;
+        MenuBSTNode(int value) { this.value = value; }
+    }
+
+    static class MenuBST {
+        MenuBSTNode root;
+        MenuBSTNode insert(MenuBSTNode node, int value) {
+            if (node == null) return new MenuBSTNode(value);
+            if (value < node.value) node.left = insert(node.left, value);
+            else if (value > node.value) node.right = insert(node.right, value);
+            return node;
+        }
+        boolean contains(int value) {
+            MenuBSTNode node = root;
+            while (node != null) {
+                if (node.value == value) return true;
+                node = value < node.value ? node.left : node.right;
+            }
+            return false;
+        }
+        MenuBSTNode delete(MenuBSTNode node, int value) {
+            if (node == null) return null;
+            if (value < node.value) node.left = delete(node.left, value);
+            else if (value > node.value) node.right = delete(node.right, value);
+            else if (node.left == null) return node.right;
+            else if (node.right == null) return node.left;
+            else {
+                MenuBSTNode successor = node.right;
+                while (successor.left != null) successor = successor.left;
+                node.value = successor.value;
+                node.right = delete(node.right, successor.value);
+            }
+            return node;
+        }
+        void inorder(MenuBSTNode node) { if (node != null) { inorder(node.left); System.out.print(node.value + " "); inorder(node.right); } }
+        void preorder(MenuBSTNode node) { if (node != null) { System.out.print(node.value + " "); preorder(node.left); preorder(node.right); } }
+        void postorder(MenuBSTNode node) { if (node != null) { postorder(node.left); postorder(node.right); System.out.print(node.value + " "); } }
+        int height(MenuBSTNode node) { return node == null ? 0 : 1 + Math.max(height(node.left), height(node.right)); }
+        int count(MenuBSTNode node) { return node == null ? 0 : 1 + count(node.left) + count(node.right); }
+    }
+
+    static void binarySearchTreeMenu(Scanner sc) {
+        MenuBST tree = new MenuBST();
+        int choice;
+        do {
+            System.out.println("\n===== BINARY SEARCH TREE =====");
+            System.out.println("1. Insert  2. Search  3. Delete  4. Traversals  5. Min/Max  6. Height  7. Count nodes  0. Back");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+            switch (choice) {
+                case 1:
+                    System.out.print("How many values? "); int n = sc.nextInt();
+                    for (int i = 0; i < n; i++) tree.root = tree.insert(tree.root, sc.nextInt());
+                    break;
+                case 2:
+                    System.out.print("Value to search: "); System.out.println(tree.contains(sc.nextInt()) ? "Value found." : "Value not found.");
+                    break;
+                case 3:
+                    System.out.print("Value to delete: "); int value = sc.nextInt();
+                    if (tree.contains(value)) { tree.root = tree.delete(tree.root, value); System.out.println("Value deleted."); }
+                    else System.out.println("Value not found.");
+                    break;
+                case 4:
+                    System.out.print("Inorder: "); tree.inorder(tree.root);
+                    System.out.print("\nPreorder: "); tree.preorder(tree.root);
+                    System.out.print("\nPostorder: "); tree.postorder(tree.root); System.out.println();
+                    break;
+                case 5:
+                    if (tree.root == null) System.out.println("Tree is empty.");
+                    else { MenuBSTNode min = tree.root, max = tree.root; while (min.left != null) min = min.left; while (max.right != null) max = max.right; System.out.println("Minimum: " + min.value + ", Maximum: " + max.value); }
+                    break;
+                case 6: System.out.println("Height (in edges): " + (tree.root == null ? 0 : tree.height(tree.root) - 1)); break;
+                case 7: System.out.println("Number of nodes: " + tree.count(tree.root)); break;
+                case 0: break;
+                default: System.out.println("Invalid choice.");
+            }
+        } while (choice != 0);
+    }
+
+    static class TraversalNode {
+        int key;
+        TraversalNode left, right;
+        TraversalNode(int key) { this.key = key; }
+    }
+
+    static void printInorder(TraversalNode node) {
+        if (node != null) { printInorder(node.left); System.out.print(" " + node.key); printInorder(node.right); }
+    }
+
+    static void printPreorder(TraversalNode node) {
+        if (node != null) { System.out.print(" " + node.key); printPreorder(node.left); printPreorder(node.right); }
+    }
+
+    static void printPostorder(TraversalNode node) {
+        if (node != null) { printPostorder(node.left); printPostorder(node.right); System.out.print(" " + node.key); }
+    }
+
+    static void binaryTreeTraversals() {
+        TraversalNode root = new TraversalNode(1);
+        root.left = new TraversalNode(12);
+        root.right = new TraversalNode(9);
+        root.left.left = new TraversalNode(5);
+        root.left.right = new TraversalNode(6);
+        System.out.println("Binary Tree:");
+        System.out.print("Inorder:"); printInorder(root);
+        System.out.print("\nPreorder:"); printPreorder(root);
+        System.out.print("\nPostorder:"); printPostorder(root);
+        System.out.println();
+    }
+
+    static void binaryTreeMenu(Scanner sc) {
+        int choice;
+        do {
+            System.out.println("\n========== BINARY TREE ==========");
+            System.out.println("1. Binary tree traversals");
+            System.out.println("2. Binary search tree operations");
+            System.out.println("0. Back to main menu");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+            switch (choice) {
+                case 1: binaryTreeTraversals(); break;
+                case 2: binarySearchTreeMenu(sc); break;
+                case 0: break;
+                default: System.out.println("Invalid choice.");
+            }
+        } while (choice != 0);
+    }
+
+    static void sparseMatrixOperations() {
+        int[][] a = {{5,0,0,0},{0,0,8,0},{0,0,0,0},{0,3,0,0}};
+        int[][] b = {{0,7,0,0},{0,0,2,0},{0,0,0,0},{9,0,0,0}};
+        int[][] sum = new int[4][4];
+        int countA = 0, countB = 0, countSum = 0;
+        for (int r = 0; r < 4; r++) for (int c = 0; c < 4; c++) {
+            sum[r][c] = a[r][c] + b[r][c];
+            if (a[r][c] != 0) countA++;
+            if (b[r][c] != 0) countB++;
+            if (sum[r][c] != 0) countSum++;
+        }
+        System.out.println("3-Tuple of Matrix A:"); printSparseTuple(a, countA);
+        System.out.println("3-Tuple of Matrix B:"); printSparseTuple(b, countB);
+        System.out.println("Resultant 3-Tuple:"); printSparseTuple(sum, countSum);
+
+        int[][] sparse = {{4,5,4},{0,1,10},{1,3,20},{2,2,30},{3,4,40}};
+        int[][] transpose = new int[3][5];
+        for (int r = 0; r < sparse.length; r++) for (int c = 0; c < 3; c++) transpose[c][r] = sparse[r][c];
+        System.out.println("Original Triplet Matrix (5x3):"); printMatrix(sparse);
+        System.out.println("Transpose of Triplet Matrix (3x5):"); printMatrix(transpose);
+    }
+
+    static void printSparseTuple(int[][] matrix, int nonzeroCount) {
+        System.out.println("Row\tCol\tValue");
+        System.out.println("4\t4\t" + nonzeroCount);
+        for (int r = 0; r < matrix.length; r++) for (int c = 0; c < matrix[r].length; c++)
+            if (matrix[r][c] != 0) System.out.println(r + "\t" + c + "\t" + matrix[r][c]);
+    }
+
+    static void printMatrix(int[][] matrix) {
+        for (int[] row : matrix) {
+            for (int value : row) System.out.printf("%4d", value);
+            System.out.println();
+        }
+    }
+
     // ============
     // MAIN METHOD
     // ============
@@ -1408,6 +1645,10 @@ public class MenuDrivenProgram {
             System.out.println("   4.1 Singly Linked List");
             System.out.println("   4.2 Doubly Linked List");
             System.out.println("5. Exit");
+            System.out.println("6. Array input and display");
+            System.out.println("7. Merge two sorted linked lists");
+            System.out.println("8. Binary Tree");
+            System.out.println("9. Sparse matrix addition and transpose");
             System.out.print("Enter your choice (for example, 1.1): ");
 
             do {
@@ -1497,6 +1738,11 @@ public class MenuDrivenProgram {
                 case "5":
                     System.out.println("Program ended.");
                     break;
+
+                case "6": arrayInputDisplay(sc); break;
+                case "7": mergeSortedLists(sc); break;
+                case "8": binaryTreeMenu(sc); break;
+                case "9": sparseMatrixOperations(); break;
 
                 default:
                     System.out.println("Invalid Choice!");
